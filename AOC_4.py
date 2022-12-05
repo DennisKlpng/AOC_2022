@@ -2,8 +2,6 @@ import sys
 
 
 if __name__ == '__main__':
-    indices1 = []
-    index1 = 0
     with open(sys.argv[1], "r") as f:
         pairs = [[list(range(int(er.split("-")[0]), int(er.split("-")[1])+1)) for er in line.split(",")] for line in
                  f.read().splitlines()]

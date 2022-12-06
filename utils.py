@@ -4,6 +4,11 @@ def split_fileinput_by_emptylines(filename):  # empty line separated blocks
         return [[elem for elem in chunk.splitlines()] for chunk in data]
 
 
+def read_file_as_chunk(filename):
+    with open(filename, "r") as f:
+        return f.read().strip()
+
+
 def extract_int_list_from_string(input_str):  # whitespace separated elements
     return[int(elem) for elem in input_str.strip().split(" ") if elem[0].isdigit()]
 

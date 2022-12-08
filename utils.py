@@ -9,6 +9,11 @@ def read_file_as_chunk(filename):
         return f.read().strip()
 
 
+def read_file_as_lines(filename):
+    with open(filename, "r") as f:
+        return f.read().splitlines()
+
+
 def extract_int_list_from_string(input_str):  # whitespace separated elements
     return[int(elem) for elem in input_str.strip().split(" ") if elem[0].isdigit()]
 

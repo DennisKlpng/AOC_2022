@@ -22,6 +22,11 @@ def extract_float_list_from_string(input_str):  # whitespace separated elements
     return[float(elem) for elem in input_str.strip().split(" ") if elem[0].isdigit()]
 
 
+def get_neighbours(coord):
+    row, col = coord[0], coord[1]
+    return [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)]
+
+
 class GenericTree(object):
     def __init__(self, name='root', size=None, is_file=False):
         self.name = name

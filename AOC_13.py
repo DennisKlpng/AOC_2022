@@ -1,6 +1,9 @@
+from csv import excel_tab
+
 import utils
 import sys
-import ast
+from ast import literal_eval as leval
+import functools
 
 
 def compare(a, b):
@@ -17,8 +20,16 @@ def compare(a, b):
         return val if type(val) == bool else compare(a[1:], b[1:])
 
     return compare([a], b) if type(a) == int else compare(a, [b])
-    
+
+
+def evcomp(a, b): return -1 if compare(a, b) else 1
+
 
 if __name__ == '__main__':
     data = utils.split_fileinput_by_emptylines(sys.argv[1])
-    print(f"Pt 1: {sum([x for x, val in enumerate(data, start=1) if compare(ast.literal_eval(val[0]), ast.literal_eval(val[1])) == True])}")
+    print(f"Pt 1: {sum([x for x, val in enumerate(data, start=1) if compare(leval(val[0]), leval(val[1])) == True])}")
+    data_pt2 = [leval(x) for sublist in data for x in sublist]
+    ex_0, ex_1 = [[2]], [[6]]
+    data_pt2 += [ex_0, ex_1]
+    data_pt2 = sorted(data_pt2, key=functools.cmp_to_key(evcomp))
+    print(f"Pt 2: {(data_pt2.index(ex_0) + 1) * (data_pt2.index(ex_1) + 1)}")

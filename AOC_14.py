@@ -16,9 +16,19 @@ def vis(world_dict, lim):
     print(" ")
 
 
+def sand_sim(world_sim):
+    limits = get_limits(world_sim.keys())
+    sand_counter = 0
+    while True:
+        nom, pos = sand_move(500 + 0j, world_sim, limits[2])
+        if nom is True:
+            world_sim[pos] = 'o'
+            sand_counter += 1
+        else:
+            return sand_counter
+
+
 def sand_move(pos, world_dict, lowest_rock):
-    #print(f"Trying to fall down from pos: {pos}")
-    #print(f"Below at pos {pos + 1j} is {world_dict[pos + 1j]}")
     if pos.imag > lowest_rock:
         return False, pos
     # try to move one tile down
@@ -30,7 +40,9 @@ def sand_move(pos, world_dict, lowest_rock):
     # else down and right
     elif world_dict[pos + 1 + 1j] == '.':
         return sand_move(pos + 1 + 1j, world_dict, lowest_rock)
-    # no way down, not in the abyss: very fine to place sand
+    if pos == 500 + 0j:
+        return False, pos
+    # no way down, not in the abyss, not on the source itself: very fine to place sand
     return True, pos
 
 
@@ -50,18 +62,16 @@ if __name__ == '__main__':
             if diff_i != 0:
                 for i in range(0, diff_i+sign(diff_i), sign(diff_i)):
                     world[line_s + i*1j] = '#'
-    world[500 + 0j] = '+'
-    limits = get_limits(world)
-    print(limits)
-    # vis(world, limits)  # debug, initial state
 
-    sand_counter = 0
-    while True:
-        nom, pos = sand_move(500 + 0j, world, limits[2])
-        if nom is True:
-            world[pos] = 'o'
-            sand_counter += 1
-            # vis(world, limits)  # debug vi
-        else:
-            break
-    print(f"Sol pt 1: {sand_counter}")
+    world[500 + 0j] = '+'
+    lims_rocks = get_limits(world.keys())
+    pt1 = sand_sim(world)
+    print(f"Sol pt 1: {pt1}")
+
+    # very conservative estimation:
+    # minimal left border of the base of the "pyramid like structure" is leftmost_rock - height_diff
+    depth_floor = lims_rocks[2] + 2
+    for i in range(lims_rocks[1] - depth_floor, lims_rocks[0] + 1 + depth_floor):
+        world[i + depth_floor * 1j] = '#'
+    # +1 since we abort before actually placing the sand
+    print(f"Sol pt 2: {pt1 + sand_sim(world) + 1}")

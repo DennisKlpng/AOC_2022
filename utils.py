@@ -1,3 +1,5 @@
+import re
+
 def split_fileinput_by_emptylines(filename):  # empty line separated blocks
     with open(filename, "r") as f:
         data = f.read().split("\n\n")
@@ -15,11 +17,13 @@ def read_file_as_lines(filename):
 
 
 def extract_int_list_from_string(input_str):  # whitespace separated elements
-    return[int(elem) for elem in input_str.strip().split(" ") if elem[0].isdigit()]
+    re_num = re.compile('[-\\d]+')
+    return [int(x) for x in re.findall(re_num, input_str)]
 
 
-def extract_float_list_from_string(input_str):  # whitespace separated elements
-    return[float(elem) for elem in input_str.strip().split(" ") if elem[0].isdigit()]
+def extract_float_list_from_string(input_str, decimal_sep):  # whitespace separated elements
+    re_num = re.compile(f'[-{decimal_sep}\\d]+')
+    return [float(x) for x in re.findall(re_num, input_str)]
 
 
 def get_neighbours(coord):

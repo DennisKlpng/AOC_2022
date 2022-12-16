@@ -49,37 +49,48 @@ def reduce_dimensionsality(input_data):
     return shortest_paths, rel_valves
 
 
-def solver(pathlenghts, vals, start_index, rem_time, pt2=False):
-    stack = [(rem_time, start_index, [start_index], [], 0,)]  # ., ., visited, rates, pressure released
-    max_press = 0
-    while stack:
-        s = stack.pop()
-        if s[0] <= 0:  # no time left
-            continue
-        pot_p = sum(s[3]) * s[0]  # pot release w/o moves: rate_sum * remaining time
-        if (s[4] + pot_p) > max_press:
-            max_press = s[4] + pot_p
-        theoretical_p = s[0] * sum([r for r in vals if r not in s[2]])
-        if (theoretical_p + pot_p + s[4]) < max_press:  # throw away all solutions that can't possibly beat the max
-            continue
-        for ind in range(len(vals)):
-            if ind in s[2] or ind == start_index:  # never visit previously visited again
-                continue
-            dt = 1 + pathlengths[s[1], ind]  # time to reach and open that valve
-            p = s[4] + sum(s[3])*dt  # new pressure released: old p + sum of all rates * time_diff since old p
-            v = deepcopy(s[2])
-            r = deepcopy(s[3])
-            v.append(ind)
-            r.append(vals[ind])
-            stack.append((int(s[0] - dt), ind, v, r, p,))
-    return int(max_press)
+def solver(pathlengths, vals, start_index, rem_time, pt2=False):
+    def get_all_paths(rem_t, start_in):
+        all_paths = []
+        all_pressures = []
+        stack = [(rem_time, start_in, [start_in], [], 0)]  # ., ., visited, rates, pressure released
+        while stack:
+            rt, st_in, path, rates, p = stack.pop()
+            stack_new = []
+            for ind in range(len(vals)):
+                if ind in path or ind == start_in:  # never visit previously visited again
+                    continue
+                dt = 1 + pathlengths[st_in, ind]  # time to reach and open that valve
+                if rt - dt <= 0:  # not enough time to open valve
+                    continue
+                p_new = p + sum(rates) * dt
+                elem = rt - dt, ind, path + [ind], rates + [vals[ind]], p_new
+                stack_new.append(elem)
+            if stack_new:
+                stack.extend(stack_new)
+            else:
+                all_paths.append(path)
+                all_pressures.append(p + rt*sum(rates))
+
+        return all_paths, all_pressures
+    pths, press = get_all_paths(rem_time, start_index)
+    if not pt2:
+        return max(press)
+    # Part 2: paths that intersect will certainly not be the correct ones
 
 
 if __name__ == '__main__':
     start_time = time.time()
     re_vals = re.compile('[-\\d]+|[A-Z]{2,}')
     data = [re.findall(re_vals, line) for line in utils.read_file_as_lines(sys.argv[1])]
-    pathlengths, valve_vals = reduce_dimensionsality(data)
-    print(f"pt1: {solver(pathlengths, valve_vals, valve_vals.index(0), 30)}")
+    distances, valve_values = reduce_dimensionsality(data)
     stop_time = time.time()
-    print(f"pt1 time: {stop_time - start_time}")
+    print(f"Initialization time: {stop_time - start_time} seconds")
+    start_time = stop_time
+    pt1 = solver(distances, valve_values, valve_values.index(0), 30)
+    stop_time = time.time()
+    print(f"pt1 solution: {pt1}  time: {stop_time - start_time}")
+    start_time = stop_time
+    pt2 = solver(distances, valve_values, valve_values.index(0), 26, True)
+    stop_time = time.time()
+    print(f"pt2 solution: {pt2} time: {stop_time - start_time}")

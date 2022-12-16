@@ -3,7 +3,6 @@ import sys
 import re
 import numpy
 import math
-from copy import deepcopy
 import time
 
 
@@ -56,6 +55,9 @@ def solver(pathlengths, vals, start_index, rem_time, pt2=False):
         stack = [(rem_time, start_in, [start_in], [], 0)]  # ., ., visited, rates, pressure released
         while stack:
             rt, st_in, path, rates, p = stack.pop()
+            if pt2 and len(path) > len(vals)*0.5 and p > 0 and path not in all_paths:
+                all_paths.append(path[1:])
+                all_pressures.append(p + rt * sum(rates))
             stack_new = []
             for ind in range(len(vals)):
                 if ind in path or ind == start_in:  # never visit previously visited again
@@ -69,14 +71,39 @@ def solver(pathlengths, vals, start_index, rem_time, pt2=False):
             if stack_new:
                 stack.extend(stack_new)
             else:
-                all_paths.append(path)
+                all_paths.append(path[1:])
                 all_pressures.append(p + rt*sum(rates))
 
-        return all_paths, all_pressures
-    pths, press = get_all_paths(rem_time, start_index)
+        return all_pressures, all_paths
+    press, pths = get_all_paths(rem_time, start_index)
     if not pt2:
         return max(press)
-    # Part 2: paths that intersect will certainly not be the correct ones
+    press, pths = zip(*sorted(zip(press, pths), reverse=True))
+
+    print(f"Comppressing lists, len: {len(pths)}")
+
+    def compress_lists(l_pths):
+        # Compress list of paths (by factor ~10) by getting the indices of the path-permutation with the highest
+        # pressure. As e.g. [1, 3, 4] and [1, 4, 3] visit the same valves, it doesn't make much sense to consider both
+        # for the O(N²) comparison that follow beneath. This trick made the numbers actually manageable
+        ids_unq_paths = []
+        set_paths = set()
+        for id in range(len(l_pths)):
+            if tuple(sorted(l_pths[id])) not in set_paths:
+                set_paths.add(tuple(sorted(l_pths[id])))
+                ids_unq_paths.append(id)
+        return ids_unq_paths
+
+    unq_paths_list = compress_lists(pths)
+    print(f"Comparing lists, len: {len(unq_paths_list)}")
+    max_pressure = 0
+    # Part 2: paths that overlap (aka elephant will turn the same valves) will certainly not be the correct ones
+    for i in range(0, len(unq_paths_list)):
+        for j in range(i + 1, len(unq_paths_list)):
+            if not set(pths[unq_paths_list[i]]).isdisjoint(set(pths[unq_paths_list[j]])):
+                continue
+            max_pressure = max(max_pressure, press[unq_paths_list[i]] + press[unq_paths_list[j]])
+    return max_pressure
 
 
 if __name__ == '__main__':

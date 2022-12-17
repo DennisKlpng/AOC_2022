@@ -52,12 +52,13 @@ def solver(pathlengths, vals, start_index, rem_time, pt2=False):
     def get_all_paths(rem_t, start_in):
         all_paths = []
         all_pressures = []
-        stack = [(rem_time, start_in, [start_in], [], 0)]  # ., ., visited, rates, pressure released
+        stack = [(rem_time, start_in, [start_in], 0)]  # ., ., visited, pressure released
         while stack:
-            rt, st_in, path, rates, p = stack.pop()
-            if pt2 and len(path) > len(vals)*0.5 and p > 0 and path not in all_paths:
+            rt, st_in, path, p = stack.pop()
+            rate_sum = sum([vals[x] for x in path])
+            if pt2 and len(path) > len(vals)*0.5 and p > 0:
                 all_paths.append(path[1:])
-                all_pressures.append(p + rt * sum(rates))
+                all_pressures.append(p + rt * rate_sum)
             stack_new = []
             for ind in range(len(vals)):
                 if ind in path or ind == start_in:  # never visit previously visited again
@@ -65,14 +66,14 @@ def solver(pathlengths, vals, start_index, rem_time, pt2=False):
                 dt = 1 + pathlengths[st_in, ind]  # time to reach and open that valve
                 if rt - dt <= 0:  # not enough time to open valve
                     continue
-                p_new = p + sum(rates) * dt
-                elem = rt - dt, ind, path + [ind], rates + [vals[ind]], p_new
+                p_new = p + rate_sum * dt
+                elem = rt - dt, ind, path + [ind], p_new
                 stack_new.append(elem)
             if stack_new:
                 stack.extend(stack_new)
             else:
                 all_paths.append(path[1:])
-                all_pressures.append(p + rt*sum(rates))
+                all_pressures.append(p + rt*rate_sum)
 
         return all_pressures, all_paths
     press, pths = get_all_paths(rem_time, start_index)

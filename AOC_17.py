@@ -39,6 +39,7 @@ def move_rock_down(rock):
 
 
 def visualize_trench(trench, max_height):
+    numpy.set_printoptions(threshold=sys.maxsize)
     vis = numpy.full((int(max_height) + 1, 7), 1)
     for occ in trench:
         vis[int(occ.imag), int(occ.real)] = 8
@@ -52,11 +53,15 @@ if __name__ == '__main__':
     print(f"Initialization time: {stop_time - start_time} seconds")
     # Parsing starts at 0+1i => real from the left, imag from the bottom. 1i = 1str row
     start_time = stop_time
-    height = 0
-    moves = 0
+    height, moves = 0, 0
     occupied = set([x + 0j for x in range(7)])
-    num_rocks_todo = 2022
-    for i in range(0, num_rocks_todo):
+    num_rocks_todo = 1000000000000
+    tracked_cycle = []
+    # cache = 50
+    height_offset = 0
+    det_loop = False
+    i = 0
+    while i < num_rocks_todo:
         new_rock = get_rock(height, i)
         while True:
             # move
@@ -71,10 +76,20 @@ if __name__ == '__main__':
                 occupied.update(new_rock)
                 height = max(height, max([x.imag for x in list(new_rock)]))
                 break
-        #visualize_trench(occupied, height)
+        i += 1
         if i == 2021:
             stop_time = time.time()
             print(f"pt1 solution: {height}  time: {stop_time - start_time}")
+            tracked_cycle = [i % 5, moves, height, i]
+        if i > 2021:
+            if i % 5 == tracked_cycle[0] and moves == tracked_cycle[1] and not det_loop:
+                # loop detected
+                dh = height - tracked_cycle[2]
+                di = i - tracked_cycle[3]
+                num_future_cycles = math.floor((num_rocks_todo - i)/di)
+                i += di*num_future_cycles
+                height_offset = dh*num_future_cycles
+                det_loop = True
 
     stop_time = time.time()
-    print(f"pt2 solution: {height} time overall: {stop_time - start_time}")
+    print(f"pt2 solution: {height + height_offset} time overall: {stop_time - start_time}")

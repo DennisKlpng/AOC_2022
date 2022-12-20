@@ -25,20 +25,19 @@ def get_time_to_build(costs, e, c, o, robots, rob_ind):
         return math.ceil(max(1 + (costs[4]-e)/robots[0], 1 + (costs[5]-o)/robots[2])) if robots[2] > 0 else math.inf
 
 
-def get_geodes_for_bp(bp):
+def get_geodes_for_bp(bp, total_time):
     bp = tuple(bp)
-    stack = [(24, 0, 0, 0, (1, 0, 0, 0), 0)]  # rem. time, num e, num c, num o, tuple of robots (e, c, o, g), geodes
+    stack = [(total_time, 0, 0, 0, (1, 0, 0, 0), 0)]  # rem. time, num e, num c, num o, tuple of robots (e, c, o, g), geodes
     curr_max_g = 0
     while stack:
-        # print(stack)
+        # if start_print:
+        #     print(stack)
         rt, e, c, o, robots, g = stack.pop()
         if rt <= 1:
-            if g > curr_max_g:
-                print(f"Best state: {g}, robots: {robots}")
             curr_max_g = max(curr_max_g, g)
             continue
-        # if g + (pow(rt-1, 2) + rt - 1)/2 < curr_max_g:
-        #     continue
+        if g + (pow(rt-1, 2) + rt - 1)/2 < curr_max_g:
+            continue
         # we have 4 possible states: wait until one of each kind of robot is buildable, then build it
         # pointless to build more ore robots than can be used in one step. Otherwise, build one
         if not robots[0] >= max(bp[0], bp[1], bp[2], bp[4]):
@@ -49,7 +48,7 @@ def get_geodes_for_bp(bp):
             nt = get_time_to_build(bp, e, c, o, robots, 1)
             stack.append((rt - nt, e-bp[1]+nt*robots[0], c+robots[1]*nt, o+robots[2]*nt, (robots[0], robots[1] + 1, robots[2], robots[3],), g))
         # pointless to build more obsidian robots than can be used in one step. Otherwise, build one
-        if not robots[2] >= bp[4]:
+        if not robots[2] >= bp[5]:
             nt = get_time_to_build(bp, e, c, o, robots, 2)
             if nt != math.inf:
                 stack.append((rt-nt, e-bp[2]+nt*robots[0], c-bp[3]+nt*robots[1], o+nt*robots[2], (robots[0], robots[1],
@@ -74,14 +73,18 @@ if __name__ == '__main__':
     print(f"Initialization time: {stop_time - start_time} seconds")
     start_time = stop_time
     # format: [0]: index, [1]: e cost e, [2]: c cost e, [3], [4] o cost e, c, [5], [6] g cost e, o
-    max_g = 0
+    quality = 0
     for x in bps:
-        g_new = get_geodes_for_bp(x[1:])
-        max_g = max(max_g, g_new)
-        print(f"geodes: {g_new} for bp: {x}")
+        g_new = get_geodes_for_bp(x[1:], 24)
+        quality += g_new * x[0]
     stop_time = time.time()
-    print(f"pt1 solution: {max_g} time overall: {stop_time - start_time}")
+    assert quality == 33 if sys.argv[1].startswith("Test") else 1349
+    print(f"pt1 solution: {quality} time overall: {stop_time - start_time}")
     start_time = stop_time
-    #
-    # stop_time = time.time()
-    # print(f"pt2 solution: {} time overall: {stop_time - start_time}")
+    score = 1
+    for x in bps[0:3]:
+        g_new = get_geodes_for_bp(x[1:], 32)
+        print(f"geode {x[0]}, score: {g_new}")
+        score *= g_new
+    stop_time = time.time()
+    print(f"pt2 solution: {score} time overall: {stop_time - start_time}")

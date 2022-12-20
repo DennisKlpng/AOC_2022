@@ -1,57 +1,62 @@
 import utils
 import sys
 import time
+import math
 from functools import lru_cache
 
 
 @lru_cache(maxsize=10000)
-def check_if_robot_buildable(costs, e, c, o):
-    available_robots = []
-    if e >= costs[0]:
-        available_robots.append(0)
-    if e >= costs[1]:
-        available_robots.append(1)
-    if e >= costs[2] and c >= costs[3]:
-        available_robots.append(2)
-    if e >= costs[4] and o >= costs[5]:
-        available_robots.append(3)
-    return tuple(available_robots)
+def get_time_to_build(costs, e, c, o, robots, rob_ind):
+    if rob_ind == 0:
+        if e >= costs[0]:
+            return 1
+        return math.ceil((costs[0]-e)/robots[0] + 1)
+    elif rob_ind == 1:
+        if e >= costs[1]:
+            return 1
+        return math.ceil((costs[1]-e)/robots[0] + 1)
+    elif rob_ind == 2:
+        if e >= costs[2] and c >= costs[3]:
+            return 1
+        return math.ceil(max(1 + (costs[2]-e)/robots[0], 1 + (costs[3]-c)/robots[1])) if robots[1] > 0 else math.inf
+    else:
+        if e >= costs[4] and o >= costs[5]:
+            return 1
+        return math.ceil(max(1 + (costs[4]-e)/robots[0], 1 + (costs[5]-o)/robots[2])) if robots[2] > 0 else math.inf
 
 
 def get_geodes_for_bp(bp):
     bp = tuple(bp)
-    stack = [(24, 0, 0, 0, (1, 0, 0), 0)]  # rem. time, num e, num c, num o, tuple of robots (e, c, o, g), geodes
+    stack = [(24, 0, 0, 0, (1, 0, 0, 0), 0)]  # rem. time, num e, num c, num o, tuple of robots (e, c, o, g), geodes
     curr_max_g = 0
     while stack:
         # print(stack)
         rt, e, c, o, robots, g = stack.pop()
-        if rt == 1:  # building robots is pointless now
+        if rt <= 1:
+            if g > curr_max_g:
+                print(f"Best state: {g}, robots: {robots}")
             curr_max_g = max(curr_max_g, g)
             continue
         # if g + (pow(rt-1, 2) + rt - 1)/2 < curr_max_g:
         #     continue
-        rt -= 1
-        info = check_if_robot_buildable(bp, e, c, o)
-        e += robots[0]
-        c += robots[1]
-        o += robots[2]
-        robots = list(robots)
-        # since we just count the num of geodes, we don't need to track bots, just immediately add the geodes
-        # they will produce to the state geode count
-        if 3 in info:
-            stack.append((rt, e - bp[4], c, o - bp[5], tuple(robots), g + rt))
-            continue
-        # pointless to build more ore robots than can be used in one step
-        if 0 in info and not robots[0] >= max(bp[0], bp[1], bp[2], bp[4]):
-            stack.append((rt, e - bp[0], c, o, (robots[0]+1, robots[1], robots[2],), g))
-        # pointless to build more clay robots than can be used in one step
-        if 1 in info and not robots[1] >= bp[3]:
-            stack.append((rt, e - bp[1], c, o, (robots[0], robots[1]+1, robots[2],), g))
-        # pointless to build more obsidian robots than can be used in one step
-        if 2 in info and not robots[2] >= bp[4]:
-            stack.append((rt, e - bp[2], c - bp[3], o, (robots[0], robots[1], robots[2]+1,), g))
-        elif not len(info) == 4:  # if all robots buidable, it's a waste to not build one
-            stack.append((rt, e, c, o, tuple(robots), g, ))
+        # we have 4 possible states: wait until one of each kind of robot is buildable, then build it
+        # pointless to build more ore robots than can be used in one step. Otherwise, build one
+        if not robots[0] >= max(bp[0], bp[1], bp[2], bp[4]):
+            nt = get_time_to_build(bp, e, c, o, robots, 0)
+            stack.append((rt - nt, e-bp[0]+nt*robots[0], c+robots[1]*nt, o+robots[2]*nt, (robots[0]+1, robots[1], robots[2], robots[3],), g))
+        # pointless to build more clay robots than can be used in one step. Otherwise, build one
+        if not robots[1] >= bp[3]:
+            nt = get_time_to_build(bp, e, c, o, robots, 1)
+            stack.append((rt - nt, e-bp[1]+nt*robots[0], c+robots[1]*nt, o+robots[2]*nt, (robots[0], robots[1] + 1, robots[2], robots[3],), g))
+        # pointless to build more obsidian robots than can be used in one step. Otherwise, build one
+        if not robots[2] >= bp[4]:
+            nt = get_time_to_build(bp, e, c, o, robots, 2)
+            if nt != math.inf:
+                stack.append((rt-nt, e-bp[2]+nt*robots[0], c-bp[3]+nt*robots[1], o+nt*robots[2], (robots[0], robots[1],
+                                                                                                  robots[2] + 1, robots[3],), g))
+        nt = get_time_to_build(bp, e, c, o, robots, 3)
+        if nt != math.inf and rt > nt:
+            stack.append((rt-nt, e-bp[4]+nt*robots[0], c+nt*robots[1], o-bp[5]+nt*robots[2], (robots[0], robots[1], robots[2], robots[3] + 1,), g + rt - nt))
 
     return curr_max_g
 

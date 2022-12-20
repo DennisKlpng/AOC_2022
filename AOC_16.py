@@ -99,8 +99,8 @@ def solver(pathlengths, vals, start_index, rem_time, pt2=False):
     print(f"Comparing lists, len: {len(unq_paths_list)}")
     max_pressure = 0
     # Part 2: paths that overlap (aka elephant will turn the same valves) will certainly not be the correct ones
-    max_val_ele = press[unq_paths_list[1]]
     for i in range(0, len(unq_paths_list)):
+        max_val_ele = press[unq_paths_list[i + 1]]
         if press[unq_paths_list[i]] + max_val_ele < max_pressure:
             break  # since vals are sorted, max can't be exceeded anymore
         for j in range(i + 1, len(unq_paths_list)):
@@ -109,8 +109,7 @@ def solver(pathlengths, vals, start_index, rem_time, pt2=False):
             new_max = press[unq_paths_list[i]] + press[unq_paths_list[j]]
             if new_max > max_pressure:
                 max_pressure = new_max
-            else:
-                break  # since vals are sorted, max can't be exceeded anymore for the current human path
+                break
     return max_pressure
 
 

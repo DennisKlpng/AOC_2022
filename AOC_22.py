@@ -8,7 +8,7 @@ import math
 test_move = {1: {'x+': (1, "minx", (1, 0,)), 'x-': (1, "maxx", (-1, 0,)), 'y+': (4, "miny", (0, 1,)), 'y-': (5, "maxy", (0, -1,))},
              2: {'x+': (3, "minx", (1, 0,)), 'x-': (4, "maxx", (-1, 0,)), 'y+': (2, "miny", (0, 1,)), 'y-': (2, "maxy", (0, -1,))},
              3: {'x+': (4, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': (3, "miny", (0, 1,)), 'y-': (3, "maxy", (0, -1,))},
-             4: {'x+': (2, "minx", (1, 0,)), 'x-': (3, "maxx", (-1, 0,)), 'y+': (1, "miny", (0, 1,)), 'y-': (5, "maxy", (0, -1,))},
+             4: {'x+': (2, "minx", (1, 0,)), 'x-': (3, "maxx", (-1, 0,)), 'y+': (5, "miny", (0, 1,)), 'y-': (1, "maxy", (0, -1,))},
              5: {'x+': (6, "minx", (1, 0,)), 'x-': (6, "maxx", (-1, 0,)), 'y+': (1, "miny", (0, 1,)), 'y-': (4, "maxy", (0, -1,))},
              6: {'x+': (5, "minx", (1, 0,)), 'x-': (5, "maxx", (-1, 0,)), 'y+': (6, "miny", (0, 1,)), 'y-': (6, "maxy", (0, -1,))},
              }
@@ -23,12 +23,12 @@ real_move = {1: {'x+': (2, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': 
              }
 # Part2
 # TODO
-test_cube = {1: {'x+': (1, "minx", (1, 0,)), 'x-': (1, "maxx", (-1, 0,)), 'y+': (4, "miny", (0, 1,)), 'y-': (5, "maxy", (0, -1,))},
-             2: {'x+': (3, "minx", (1, 0,)), 'x-': (4, "maxx", (-1, 0,)), 'y+': (2, "miny", (0, 1,)), 'y-': (2, "maxy", (0, -1,))},
-             3: {'x+': (4, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': (3, "miny", (0, 1,)), 'y-': (3, "maxy", (0, -1,))},
-             4: {'x+': (2, "minx", (1, 0,)), 'x-': (3, "maxx", (-1, 0,)), 'y+': (1, "miny", (0, 1,)), 'y-': (5, "maxy", (0, -1,))},
-             5: {'x+': (6, "minx", (1, 0,)), 'x-': (6, "maxx", (-1, 0,)), 'y+': (1, "miny", (0, 1,)), 'y-': (4, "maxy", (0, -1,))},
-             6: {'x+': (5, "minx", (1, 0,)), 'x-': (5, "maxx", (-1, 0,)), 'y+': (6, "miny", (0, 1,)), 'y-': (6, "maxy", (0, -1,))},
+test_cube = {1: {'x+': (6, "maxx", (-1, 0,)), 'x-': (3, "miny", (0, 1,)), 'y+': (4, "miny", (0, 1,)), 'y-': (2, "miny", (0, 1,))},  # done
+             2: {'x+': (3, "minx", (1, 0,)), 'x-': (6, "maxy", (0, -1,)), 'y+': (5, "maxy", (0, -1,)), 'y-': (1, "miny", (0, -1,))},  # done
+             3: {'x+': (4, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': (5, "minx", (1, 0,)), 'y-': (1, "minx", (1, 0,))},  # done
+             4: {'x+': (6, "miny", (0, 1,)), 'x-': (3, "maxx", (-1, 0,)), 'y+': (5, "miny", (0, 1,)), 'y-': (1, "maxy", (0, -1,))},  # done
+             5: {'x+': (6, "minx", (1, 0,)), 'x-': (3, "maxy", (0, -1,)), 'y+': (2, "maxy", (0, -1,)), 'y-': (4, "maxy", (0, -1,))},
+             6: {'x+': (1, "maxx", (-1, 0,)), 'x-': (5, "maxx", (-1, 0,)), 'y+': (2, "minx", (1, 0,)), 'y-': (4, "maxx", (-1, 0,))},
              }
 
 # TODO
@@ -45,7 +45,7 @@ def move_maze(in_pos, in_instr, pt2=False):
     in_dir = (1, 0,)
     for inst in in_instr:
         if inst.isnumeric():
-            in_pos = modify_pos(in_pos, in_dir, int(inst), pt2)
+            in_pos, in_dir = modify_pos(in_pos, in_dir, int(inst), pt2)
             continue
         elif inst == "R":
             # rotate clockwise
@@ -70,41 +70,50 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
             tgt_pos[0] = t_lim["min_x"]
             tgt_pos[1] = orig_pos[1] - o_lim["min_y"] + t_lim["min_y"]
         elif wrapper[1] == "maxx":
-            print("Can this happen?")
+            tgt_pos[0] = t_lim["max_x"]
+            tgt_pos[1] = t_lim["max_y"] - (orig_pos[1] - o_lim["min_y"])
         if wrapper[1] == "miny":
-            print("Corner, not implemented")
+            tgt_pos[1] = t_lim["min_y"]
+            tgt_pos[0] = t_lim["max_x"] - (orig_pos[1] - o_lim["min_y"])
         elif wrapper[1] == "maxy":
-            print("Corner, not implemented")
+            print("Corner, not implemented x+ maxy")
     elif orig_wrap == "x-":
         # l =>
         if wrapper[1] == "minx":
-            print("Can this happen?")
+            print("Can this happen x- minx?")
         elif wrapper[1] == "maxx":
             tgt_pos[0] = t_lim["max_x"]
             tgt_pos[1] = orig_pos[1] - o_lim["min_y"] + t_lim["min_y"]
         if wrapper[1] == "miny":
-            print("Corner, not implemented")
+            tgt_pos[1] = t_lim["min_y"]
+            tgt_pos[0] = orig_pos[1] - o_lim["min_y"] + t_lim["min_x"]
         elif wrapper[1] == "maxy":
-            print("Corner, not implemented")
+            tgt_pos[1] = t_lim["max_y"]
+            tgt_pos[0] = t_lim["max_x"] - (orig_pos[1] - o_lim["min_y"])
     elif orig_wrap == "y+":
         # d =>
         if wrapper[1] == "minx":
-            print("Corner, not implemented")
+            tgt_pos[0] = t_lim["min_x"]
+            tgt_pos[1] = t_lim["max_y"] - (orig_pos[0] - o_lim["min_x"])
         elif wrapper[1] == "maxx":
-            print("Corner, not implemented")
+            print("Corner, not implemented y+ maxx")
         if wrapper[1] == "miny":
             tgt_pos[1] = t_lim["min_y"]
             tgt_pos[0] = orig_pos[0] - o_lim["min_x"] + t_lim["min_x"]
         elif wrapper[1] == "maxy":
-            print("Can this happen?")
+            tgt_pos[1] = t_lim["max_y"]
+            tgt_pos[0] = t_lim["max_x"] - (orig_pos[0] - o_lim["min_x"])
     elif orig_wrap == "y-":
         # u =>
         if wrapper[1] == "minx":
-            print("Corner, not implemented")
+            tgt_pos[0] = t_lim["min_x"]
+            tgt_pos[1] = orig_pos[0] - o_lim["min_x"] + t_lim["min_y"]
         elif wrapper[1] == "maxx":
-            print("Corner, not implemented")
+            tgt_pos[0] = t_lim["max_x"]
+            tgt_pos[1] = t_lim["max_y"] - (orig_pos[0] - o_lim["min_x"])
         if wrapper[1] == "miny":
-            print("Can this happen?")
+            tgt_pos[1] = t_lim["min_y"]
+            tgt_pos[0] = t_lim["max_x"] - (orig_pos[0] - o_lim["min_x"])
         elif wrapper[1] == "maxy":
             tgt_pos[1] = t_lim["max_y"]
             tgt_pos[0] = orig_pos[0] - o_lim["min_x"] + t_lim["min_x"]
@@ -118,6 +127,7 @@ def modify_pos(position, dirct, step_length, pt2):
     # print(f"pos: {position}, dirct: {dirct}, steps: {step_length}")  # x, y, face
     new_pos = position
     tgt_pos = position
+    new_direction = dirct
     if not pt2:
         wrap = test_move if Test else real_move
     else:
@@ -145,10 +155,11 @@ def modify_pos(position, dirct, step_length, pt2):
         # print(f"pt at tgt: {maze_pts[(tgt_pos[0], tgt_pos[1],)][0]}")
         if maze_pts[(tgt_pos[0], tgt_pos[1],)][0] == "#":
 
-            return new_pos
+            return new_pos, new_direction
         new_pos = tgt_pos
+        new_direction = dirct
 
-    return new_pos
+    return new_pos, new_direction
 
 
 def get_face_ranges(maze_data):

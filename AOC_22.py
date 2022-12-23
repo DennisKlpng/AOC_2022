@@ -47,24 +47,20 @@ def move_maze(in_pos, in_instr, pt2=False):
         if inst.isnumeric():
             in_pos, in_dir = modify_pos(in_pos, in_dir, int(inst), pt2)
             continue
-        elif inst == "R":
-            # rotate clockwise
+        elif inst == "R":  # rotate clockwise
             in_dir = rotate_clock(in_dir)
-        else:
-            # rotate counterclockwise
+        else:  # rotate counterclockwise
             in_dir = rotate_ctclock(in_dir)
     dir_assosc = {(1, 0, ): 0, (0, 1,): 1, (-1, 0,): 2, (0, -1,): 3}
     col, row, dir_val = in_pos[0] + 1, in_pos[1] + 1, dir_assosc[in_dir]
     return 1000*row + 4*col + dir_val
 
 
-def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
+def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):  # everyting hardcoded, see 3d built cube
     tgt_pos = list(orig_pos)
     t_lim = face_limits[tgt_face]
     o_lim = face_limits[orig_pos[2]]
-    # print(f"wrapper tgt: {wrapper} orig_wrap: {orig_wrap} orig_pos: {orig_pos}")
-    if orig_wrap == "x+":
-        # r =>
+    if orig_wrap == "x+":  # r =>
         if wrapper[1] == "minx":
             tgt_pos[0] = t_lim["min_x"]
             tgt_pos[1] = orig_pos[1] - o_lim["min_y"] + t_lim["min_y"]
@@ -77,8 +73,7 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
         elif wrapper[1] == "maxy":
             tgt_pos[1] = t_lim["max_y"]
             tgt_pos[0] = orig_pos[1] - o_lim["min_y"] + t_lim["min_x"]
-    elif orig_wrap == "x-":
-        # l =>
+    elif orig_wrap == "x-":  # l =>
         if wrapper[1] == "minx":
             tgt_pos[0] = t_lim["min_x"]
             tgt_pos[1] = t_lim["max_y"] - (orig_pos[1] - o_lim["min_y"])
@@ -91,13 +86,11 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
         elif wrapper[1] == "maxy":
             tgt_pos[1] = t_lim["max_y"]
             tgt_pos[0] = t_lim["max_x"] - (orig_pos[1] - o_lim["min_y"])
-    elif orig_wrap == "y+":
-        # d =>
+    elif orig_wrap == "y+":  # d =>
         if wrapper[1] == "minx":
             tgt_pos[0] = t_lim["min_x"]
             tgt_pos[1] = t_lim["max_y"] - (orig_pos[0] - o_lim["min_x"])
         elif wrapper[1] == "maxx":
-            # print(f"OrigPos: {orig_pos}, o_lim")
             tgt_pos[0] = t_lim["max_x"]
             tgt_pos[1] = t_lim["min_y"] + orig_pos[0] - o_lim["min_x"]
         if wrapper[1] == "miny":
@@ -106,8 +99,7 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
         elif wrapper[1] == "maxy":
             tgt_pos[1] = t_lim["max_y"]
             tgt_pos[0] = t_lim["max_x"] - (orig_pos[0] - o_lim["min_x"])
-    elif orig_wrap == "y-":
-        # u =>
+    elif orig_wrap == "y-":  # u =>
         if wrapper[1] == "minx":
             tgt_pos[0] = t_lim["min_x"]
             tgt_pos[1] = orig_pos[0] - o_lim["min_x"] + t_lim["min_y"]
@@ -122,7 +114,6 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
             tgt_pos[0] = orig_pos[0] - o_lim["min_x"] + t_lim["min_x"]
 
     tgt_pos[2] = tgt_face
-    # print(f"Wrap around, orig pos: {orig_pos}, orig_dir: {orig_wrap}, wrap: {wrapper}, new_pos: {tuple(tgt_pos)}")
     return tuple(tgt_pos)
 
 

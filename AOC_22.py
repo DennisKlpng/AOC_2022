@@ -23,21 +23,21 @@ real_move = {1: {'x+': (2, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': 
              }
 # Part2
 # TODO
-test_cube = {1: {'x+': (6, "maxx", (-1, 0,)), 'x-': (3, "miny", (0, 1,)), 'y+': (4, "miny", (0, 1,)), 'y-': (2, "miny", (0, 1,))},  # done
-             2: {'x+': (3, "minx", (1, 0,)), 'x-': (6, "maxy", (0, -1,)), 'y+': (5, "maxy", (0, -1,)), 'y-': (1, "miny", (0, -1,))},  # done
-             3: {'x+': (4, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': (5, "minx", (1, 0,)), 'y-': (1, "minx", (1, 0,))},  # done
-             4: {'x+': (6, "miny", (0, 1,)), 'x-': (3, "maxx", (-1, 0,)), 'y+': (5, "miny", (0, 1,)), 'y-': (1, "maxy", (0, -1,))},  # done
+test_cube = {1: {'x+': (6, "maxx", (-1, 0,)), 'x-': (3, "miny", (0, 1,)), 'y+': (4, "miny", (0, 1,)), 'y-': (2, "miny", (0, 1,))},
+             2: {'x+': (3, "minx", (1, 0,)), 'x-': (6, "maxy", (0, -1,)), 'y+': (5, "maxy", (0, -1,)), 'y-': (1, "miny", (0, -1,))},
+             3: {'x+': (4, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': (5, "minx", (1, 0,)), 'y-': (1, "minx", (1, 0,))},
+             4: {'x+': (6, "miny", (0, 1,)), 'x-': (3, "maxx", (-1, 0,)), 'y+': (5, "miny", (0, 1,)), 'y-': (1, "maxy", (0, -1,))},
              5: {'x+': (6, "minx", (1, 0,)), 'x-': (3, "maxy", (0, -1,)), 'y+': (2, "maxy", (0, -1,)), 'y-': (4, "maxy", (0, -1,))},
              6: {'x+': (1, "maxx", (-1, 0,)), 'x-': (5, "maxx", (-1, 0,)), 'y+': (2, "minx", (1, 0,)), 'y-': (4, "maxx", (-1, 0,))},
              }
 
 # TODO
-real_cube = {1: {'x+': (1, "minx", (1, 0,)), 'x-': (1, "maxx", (-1, 0,)), 'y+': (4, "miny", (0, 1,)), 'y-': (5, "maxy", (0, -1,))},
-             2: {'x+': (3, "minx", (1, 0,)), 'x-': (4, "maxx", (-1, 0,)), 'y+': (2, "miny", (0, 1,)), 'y-': (2, "maxy", (0, -1,))},
-             3: {'x+': (4, "minx", (1, 0,)), 'x-': (2, "maxx", (-1, 0,)), 'y+': (3, "miny", (0, 1,)), 'y-': (3, "maxy", (0, -1,))},
-             4: {'x+': (2, "minx", (1, 0,)), 'x-': (3, "maxx", (-1, 0,)), 'y+': (1, "miny", (0, 1,)), 'y-': (5, "maxy", (0, -1,))},
-             5: {'x+': (6, "minx", (1, 0,)), 'x-': (6, "maxx", (-1, 0,)), 'y+': (1, "miny", (0, 1,)), 'y-': (4, "maxy", (0, -1,))},
-             6: {'x+': (5, "minx", (1, 0,)), 'x-': (5, "maxx", (-1, 0,)), 'y+': (6, "miny", (0, 1,)), 'y-': (6, "maxy", (0, -1,))},
+real_cube = {1: {'x+': (2, "minx", (1, 0,)), 'x-': (4, "minx", (1, 0,)), 'y+': (3, "miny", (0, 1,)), 'y-': (6, "minx", (1, 0,))},
+             2: {'x+': (5, "maxx", (-1, 0,)), 'x-': (1, "maxx", (-1, 0,)), 'y+': (3, "maxx", (-1, 0,)), 'y-': (6, "maxy", (0, -1,))},
+             3: {'x+': (2, "maxy", (0, -1,)), 'x-': (4, "miny", (0, 1,)), 'y+': (5, "miny", (0, 1,)), 'y-': (1, "maxy", (0, -1,))},
+             4: {'x+': (5, "minx", (1, 0,)), 'x-': (1, "minx", (1, 0,)), 'y+': (6, "miny", (0, 1,)), 'y-': (3, "minx", (1, 0,))},
+             5: {'x+': (2, "maxx", (-1, 0,)), 'x-': (4, "maxx", (-1, 0,)), 'y+': (6, "maxx", (-1, 0,)), 'y-': (3, "maxy", (0, -1,))},
+             6: {'x+': (5, "maxy", (0, -1,)), 'x-': (1, "miny", (0, 1,)), 'y+': (2, "miny", (0, 1,)), 'y-': (4, "maxy", (0, -1,))},
              }
 
 
@@ -53,7 +53,6 @@ def move_maze(in_pos, in_instr, pt2=False):
         else:
             # rotate counterclockwise
             in_dir = rotate_ctclock(in_dir)
-        # print(f"New pos: {curr_pos}, new direction: {direction}")
     dir_assosc = {(1, 0, ): 0, (0, 1,): 1, (-1, 0,): 2, (0, -1,): 3}
     col, row, dir_val = in_pos[0] + 1, in_pos[1] + 1, dir_assosc[in_dir]
     return 1000*row + 4*col + dir_val
@@ -76,11 +75,13 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
             tgt_pos[1] = t_lim["min_y"]
             tgt_pos[0] = t_lim["max_x"] - (orig_pos[1] - o_lim["min_y"])
         elif wrapper[1] == "maxy":
-            print("Corner, not implemented x+ maxy")
+            tgt_pos[1] = t_lim["max_y"]
+            tgt_pos[0] = orig_pos[1] - o_lim["min_y"] + t_lim["min_x"]
     elif orig_wrap == "x-":
         # l =>
         if wrapper[1] == "minx":
-            print("Can this happen x- minx?")
+            tgt_pos[0] = t_lim["min_x"]
+            tgt_pos[1] = t_lim["max_y"] - (orig_pos[1] - o_lim["min_y"])
         elif wrapper[1] == "maxx":
             tgt_pos[0] = t_lim["max_x"]
             tgt_pos[1] = orig_pos[1] - o_lim["min_y"] + t_lim["min_y"]
@@ -96,7 +97,9 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
             tgt_pos[0] = t_lim["min_x"]
             tgt_pos[1] = t_lim["max_y"] - (orig_pos[0] - o_lim["min_x"])
         elif wrapper[1] == "maxx":
-            print("Corner, not implemented y+ maxx")
+            # print(f"OrigPos: {orig_pos}, o_lim")
+            tgt_pos[0] = t_lim["max_x"]
+            tgt_pos[1] = t_lim["min_y"] + orig_pos[0] - o_lim["min_x"]
         if wrapper[1] == "miny":
             tgt_pos[1] = t_lim["min_y"]
             tgt_pos[0] = orig_pos[0] - o_lim["min_x"] + t_lim["min_x"]
@@ -124,7 +127,6 @@ def wrap_around(wrapper, orig_pos, tgt_face, orig_wrap):
 
 
 def modify_pos(position, dirct, step_length, pt2):
-    # print(f"pos: {position}, dirct: {dirct}, steps: {step_length}")  # x, y, face
     new_pos = position
     tgt_pos = position
     new_direction = dirct
@@ -134,7 +136,6 @@ def modify_pos(position, dirct, step_length, pt2):
         wrap = test_cube if Test else real_cube
     for step in range(int(step_length)):
         tgt_pos = (tgt_pos[0] + dirct[0], tgt_pos[1] + dirct[1], tgt_pos[2],)
-        # print(f"Trying step from {new_pos} in dir {dirct} to unwrapped {tgt_pos}")
         # wrap around
         if tgt_pos[0] > face_limits[tgt_pos[2]]["max_x"]:
             wrap_new = wrap[position[2]]['x+']
@@ -152,9 +153,7 @@ def modify_pos(position, dirct, step_length, pt2):
             wrap_new = wrap[position[2]]['y-']
             dirct = wrap_new[2]
             tgt_pos = wrap_around(wrap_new, tgt_pos, wrap_new[0], 'y-')
-        # print(f"pt at tgt: {maze_pts[(tgt_pos[0], tgt_pos[1],)][0]}")
         if maze_pts[(tgt_pos[0], tgt_pos[1],)][0] == "#":
-
             return new_pos, new_direction
         new_pos = tgt_pos
         new_direction = dirct
@@ -204,7 +203,6 @@ if __name__ == '__main__':
                 if not curr_pos:
                     curr_pos = (x, y, 1, )
     face_limits = get_face_ranges(maze_pts)
-    # print(face_limits)
 
     r_90, r_m90 = math.radians(90), math.radians(-90)
     mat_clock = (int(math.cos(r_90))), int(-math.sin(r_90)), int(math.sin(r_90)), int(math.cos(r_90))
@@ -221,7 +219,6 @@ if __name__ == '__main__':
         return tuple((mat_ctclock[0]*dirct[0] + mat_ctclock[1]*dirct[1], mat_ctclock[2]*dirct[0] + mat_ctclock[3]*dirct[1]))
 
     score = move_maze(curr_pos, instructions)
-
     stop_time = time.time()
     if Test:
         assert score == 6032

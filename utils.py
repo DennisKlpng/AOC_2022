@@ -31,6 +31,12 @@ def get_neighbours(coord):
     return [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1)]
 
 
+def get_diagneighbours(coord):
+    row, col = coord[0], coord[1]
+    return [(row + 1, col), (row - 1, col), (row, col + 1), (row, col - 1),
+            (row + 1, col + 1), (row + 1, col - 1), (row - 1, col + 1), (row - 1, col - 1)]
+
+
 def get_neighbours_3d(p):
     return [(p[0] + dx, p[1] + dy, p[2] + dz,) for (dx, dy, dz) in [(1,0,0),(-1,0,0),(0,1,0),(0,-1,0),(0,0,1),(0,0,-1)]]
 

@@ -31,27 +31,29 @@ if __name__ == '__main__':
         elves_map_new[(l, c, )] = elves_map[(l, c)]
     elves_map = elves_map_new
 
-    vis(elves_map)
+    # vis(elves_map)
     stop_time = time.time()
     print(f"Initialization time: {stop_time - start_time} seconds")
     start_time = stop_time
-    dir_check = np.array([[[-1, -1], [-1, 0], [-1, 1]],  # north
-                          [[1, -1], [1, 0], [1, 1]],  # south
-                          [[-1, -1], [0, -1], [1, -1]],  # left
-                          [[-1, 1], [0, 1], [1, 1]],  # right
-                          ])
+    dir_check = (((-1, -1,), (-1, 0,), (-1, 1,)),  # north
+                 ((1, -1,), (1, 0,), (1, 1,)),  # south
+                 ((-1, -1,), (0, -1,), (1, -1,)),  # left
+                 ((-1, 1,), (0, 1,), (1, 1,))  # right
+                 )
+    counter = 0
 
-    def do_step(dir_check):
+    def do_step(dir_check, steps):
         do_move = False
         # propose steps
         proposed_steps = {}
-        elves = [key for key, val in elves_map.items() if val == 1]
+        elves = set([key for key, val in elves_map.items() if val == 1])
         for e in elves:
             e = tuple(e)
             nb = [(x[0], x[1]) for x in utils.get_diagneighbours(e)]
             if all([elves_map[x] == 0 for x in nb]):
                 continue
             for d in range(4):
+                d = (d + counter) % 4
                 means = np.mean(dir_check[d], axis=0)
                 if all([elves_map[x[0] + e[0], x[1] + e[1]] == 0 for x in dir_check[d]]):
                     proposed_steps[e] = (int(e[0] + means[0]), int(e[1] + means[1]))
@@ -65,11 +67,10 @@ if __name__ == '__main__':
                 elves_map[oldpos] = 0
                 elves_map[newpos] = 1
 
-        # vis(elves_map)
-        return np.roll(dir_check, -1, axis=0), do_move
+        return steps + 1, do_move
 
     for i in range(10):
-        dir_check, did_move = do_step(dir_check)
+        counter, did_move = do_step(dir_check, counter)
 
     def calc_score():
         # done, calculate final result
@@ -82,12 +83,11 @@ if __name__ == '__main__':
     if sys.argv[1].startswith("Test"):
         assert score == 110
     print(f"pt1 solution: {score.real} time overall: {stop_time - start_time}")
-    score = 10
     while True:
-        score += 1
-        dir_check, did_move = do_step(dir_check)
+        counter, did_move = do_step(dir_check, counter)
         if not did_move:
             break
+    score = counter
     if sys.argv[1].startswith("Test"):
         assert score == 20
     stop_time = time.time()

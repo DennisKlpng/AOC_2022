@@ -54,7 +54,7 @@ if __name__ == '__main__':
                 continue
             for d in range(4):
                 d = (d + counter) % 4
-                means = np.mean(dir_check[d], axis=0)
+                means = [sum([x[0] for x in dir_check[d]])/3, sum([x[1] for x in dir_check[d]])/3]
                 if all([elves_map[x[0] + e[0], x[1] + e[1]] == 0 for x in dir_check[d]]):
                     proposed_steps[e] = (int(e[0] + means[0]), int(e[1] + means[1]))
                     break

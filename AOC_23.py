@@ -56,16 +56,14 @@ if __name__ == '__main__':
                 d = (d + counter) % 4
                 means = [sum([x[0] for x in dir_check[d]])/3, sum([x[1] for x in dir_check[d]])/3]
                 if all([elves_map[x[0] + e[0], x[1] + e[1]] == 0 for x in dir_check[d]]):
-                    proposed_steps[e] = (int(e[0] + means[0]), int(e[1] + means[1]))
+                    proposed_steps.setdefault((int(e[0] + means[0]), int(e[1] + means[1])), []).append(e)
                     break
         # check if proposed steps are unique
-        seen = set()
-        dupes = [x for x in proposed_steps.values() if x in seen or seen.add(x)]
         for oldpos, newpos in proposed_steps.items():
-            if newpos not in dupes:
+            if len(newpos) == 1:
                 do_move = True
-                elves_map[oldpos] = 0
-                elves_map[newpos] = 1
+                elves_map[newpos[0]] = 0
+                elves_map[oldpos] = 1
 
         return steps + 1, do_move
 

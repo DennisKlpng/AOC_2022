@@ -59,11 +59,11 @@ if __name__ == '__main__':
                     proposed_steps.setdefault((int(e[0] + means[0]), int(e[1] + means[1])), []).append(e)
                     break
         # check if proposed steps are unique
-        for oldpos, newpos in proposed_steps.items():
-            if len(newpos) == 1:
+        for newpos, oldpos in proposed_steps.items():
+            if len(oldpos) == 1:
                 do_move = True
-                elves_map[newpos[0]] = 0
-                elves_map[oldpos] = 1
+                elves_map[oldpos[0]] = 0
+                elves_map[newpos] = 1
 
         return steps + 1, do_move
 

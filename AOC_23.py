@@ -28,7 +28,8 @@ if __name__ == '__main__':
     diml, dimc = np.shape(elves_map)
     elves_map_new = defaultdict(int)
     for l, c in itertools.product(range(diml), range(dimc)):
-        elves_map_new[(l, c, )] = elves_map[(l, c)]
+        if elves_map[(l, c)] == 1:
+            elves_map_new[(l, c, )] = elves_map[(l, c)]
     elves_map = elves_map_new
 
     # vis(elves_map)
@@ -47,22 +48,23 @@ if __name__ == '__main__':
         # propose steps
         proposed_steps = {}
         elves = set([key for key, val in elves_map.items() if val == 1])
+        keys = elves_map.keys()
         for e in elves:
             e = tuple(e)
             nb = utils.get_diagneighbours(e)
-            if all([elves_map[x] == 0 for x in nb]):
+            if all([x not in keys for x in nb]):
                 continue
             for d in range(4):
                 d = (d + counter) % 4
                 means = [sum([x[0] for x in dir_check[d]])/3, sum([x[1] for x in dir_check[d]])/3]
-                if all([elves_map[x[0] + e[0], x[1] + e[1]] == 0 for x in dir_check[d]]):
+                if all([(x[0] + e[0], x[1] + e[1],) not in keys for x in dir_check[d]]):
                     proposed_steps.setdefault((int(e[0] + means[0]), int(e[1] + means[1])), []).append(e)
                     break
         # check if proposed steps are unique
         for newpos, oldpos in proposed_steps.items():
             if len(oldpos) == 1:
                 do_move = True
-                elves_map[oldpos[0]] = 0
+                del elves_map[oldpos[0]]
                 elves_map[newpos] = 1
 
         return steps + 1, do_move

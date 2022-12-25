@@ -48,16 +48,16 @@ if __name__ == '__main__':
         # propose steps
         proposed_steps = {}
         elves = set([key for key, val in elves_map.items() if val == 1])
-        keys = elves_map.keys()
+        keys = set(elves_map.keys())
         for e in elves:
             e = tuple(e)
             nb = utils.get_diagneighbours(e)
-            if all([x not in keys for x in nb]):
+            if keys.isdisjoint(set(nb)):
                 continue
             for d in range(4):
                 d = (d + counter) % 4
                 means = [sum([x[0] for x in dir_check[d]])/3, sum([x[1] for x in dir_check[d]])/3]
-                if all([(x[0] + e[0], x[1] + e[1],) not in keys for x in dir_check[d]]):
+                if keys.isdisjoint(set([(x[0] + e[0], x[1] + e[1],) for x in dir_check[d]])):
                     proposed_steps.setdefault((int(e[0] + means[0]), int(e[1] + means[1])), []).append(e)
                     break
         # check if proposed steps are unique

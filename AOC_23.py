@@ -49,7 +49,7 @@ if __name__ == '__main__':
         elves = set([key for key, val in elves_map.items() if val == 1])
         for e in elves:
             e = tuple(e)
-            nb = [(x[0], x[1]) for x in utils.get_diagneighbours(e)]
+            nb = utils.get_diagneighbours(e)
             if all([elves_map[x] == 0 for x in nb]):
                 continue
             for d in range(4):

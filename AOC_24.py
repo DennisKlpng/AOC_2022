@@ -60,7 +60,7 @@ if __name__ == '__main__':
         return blizz_st
 
     # precalc blizzard pos:
-    blizz_pos = {i: get_blizzards(i) for i in range(250)}
+    blizz_pos = {i: get_blizzards(i) for i in range(max(1000, blizz_rpt))}
 
     # blizz_pos_dbg = {i: get_blizzards(i, True) for i in range(100)}
     # for i in blizz_pos_dbg.keys():
@@ -69,39 +69,43 @@ if __name__ == '__main__':
     stop_time = time.time()
     print(f"Initialization time: {stop_time - start_time} seconds")
     start_time = stop_time
-    # bfs
-    stack = deque()
-    stack.append((start_pos, 0,))
-    min_steps = inf
-    visited = {(start_pos, 0,)}
-    while stack:
-        pos, steps = stack.popleft()
-        if pos == end_pos:
-            min_steps = min(min_steps, steps)
-            print(f"New min: {min_steps}")
-            break
-        # get neighbors, append valid nb to stack
-        nbs = utils.get_neighbours(pos)
-        nbs.append(pos)
-        for nb in nbs:
-            if nb[0] > dim_h or nb[0] < 1 or nb[1] > dim_w or nb[1] < 1:
-                if nb != start_pos and nb != end_pos:
+
+    def bfs(start, tgt):
+        stack = deque()
+        stack.append(start)
+        min_steps = inf
+        visited = {start}
+        while stack:
+            pos, steps = stack.popleft()
+            if pos == tgt:
+                min_steps = min(min_steps, steps)
+                break
+            # get neighbors, append valid nb to stack
+            nbs = utils.get_neighbours(pos)
+            nbs.append(pos)
+            for nb in nbs:
+                if nb[0] > dim_h or nb[0] < 1 or nb[1] > dim_w or nb[1] < 1:
+                    if nb != start[0] and nb != tgt:
+                        continue
+                # if nb != start_pos and (nb[0] > dim_h + 1 or nb[0] < 1 or nb[1] > dim_w + 1 or nb[1] < 1):  # outside
+                if nb in blizz_pos[(steps + 1)]:
                     continue
-            # if nb != start_pos and (nb[0] > dim_h + 1 or nb[0] < 1 or nb[1] > dim_w + 1 or nb[1] < 1):  # outside
-            if nb in blizz_pos[(steps + 1)]:
-                continue
-            if (nb, (steps + 1) % blizz_rpt,) in visited:
-                continue
-            elem = (nb, steps + 1,)
-            visited.add((nb, (steps + 1) % blizz_rpt,))
-            stack.append(elem)
+                if (nb, (steps + 1) % blizz_rpt,) in visited:
+                    continue
+                elem = (nb, steps + 1,)
+                visited.add((nb, (steps + 1) % blizz_rpt,))
+                stack.append(elem)
+        return min_steps
+
+    score = bfs((start_pos, 0,), end_pos)
     stop_time = time.time()
     if sys.argv[1].startswith("Test"):
-        assert min_steps == 18
-    print(f"pt1 solution: {min_steps} time overall: {stop_time - start_time}")
-    #
-    # score = counter
-    # if sys.argv[1].startswith("Test"):
-    #     assert score == 20
-    # stop_time = time.time()
-    # print(f"pt2 solution: {score} time overall: {stop_time - start_time}")
+        assert score == 18
+    print(f"pt1 solution: {score} time overall: {stop_time - start_time}")
+
+    score = bfs((end_pos, score,), start_pos)
+    score = bfs((start_pos, score,), end_pos)
+    if sys.argv[1].startswith("Test"):
+        assert score == 54
+    stop_time = time.time()
+    print(f"pt2 solution: {score} time overall: {stop_time - start_time}")
